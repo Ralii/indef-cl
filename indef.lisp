@@ -28,6 +28,8 @@
    #:unindef
    #:indef-p
    #:list-indef
+   #:indef-defun-form
+   #:format-bindings-for-emacs
 
    ;; Inspection API
    #:@                    ; Get binding value
