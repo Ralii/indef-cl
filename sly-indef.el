@@ -89,7 +89,7 @@
 (defun sly-indef--ensure-loaded ()
   "Ensure the indef package is loaded in the Lisp image.
 Auto-loads indef.lisp from the package directory if needed."
-  (unless (sly-eval '(cl:find-package :indef))
+  (unless (sly-eval '(cl:not (cl:null (cl:find-package :indef))))
     (let ((lisp-file (sly-indef--find-lisp-file)))
       (if lisp-file
           (progn
