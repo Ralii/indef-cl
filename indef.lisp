@@ -425,12 +425,9 @@
   "Try to get the source form of a function. Returns NIL if not found."
   ;; First check if we have a cached source
   (or (gethash function-name *indef-sources*)
-      ;; Try to get from function's source location
-      #+sbcl
+      ;; function-lambda-expression is standard CL
       (let ((fn (fdefinition function-name)))
-        (sb-introspect:function-lambda-expression fn))
-      #-sbcl
-      nil))
+        (function-lambda-expression fn))))
 
 (defun indef (function-name)
   "Instrument an existing function for debugging.
