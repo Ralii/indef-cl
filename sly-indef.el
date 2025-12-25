@@ -24,7 +24,6 @@
 ;;   M-x sly-indef-show          - Show captured bindings
 ;;   M-x sly-indef-show-at-point - Show bindings for function at point
 ;;   M-x sly-indef-clear         - Clear all captured state
-;;   M-x sly-indef-inspect-var   - Inspect a captured variable
 
 ;;; Code:
 
@@ -208,25 +207,6 @@ With prefix arg or FUNCTION-NAME, show only bindings for that function."
     (message "%s" text)))
 
 ;;;###autoload
-(defun sly-indef-inspect-var (var-name)
-  "Inspect a captured variable using SLY inspector.
-VAR-NAME is the name of the variable to inspect."
-  (interactive
-   (list (sly-read-from-minibuffer "Inspect captured var: "
-                                    (sly-symbol-at-point))))
-  (sly-indef--ensure-loaded)
-  (sly-eval-async
-      `(cl:multiple-value-bind (val found)
-           (cl:gethash (cl:read-from-string ,(concat "'" var-name))
-                       indef:*bindings*)
-         (cl:if found
-             val
-             (cl:error "Variable ~A not found in indef bindings"
-                       (cl:read-from-string ,var-name))))
-    (lambda (result)
-      (sly-inspect (prin1-to-string result)))))
-
-;;;###autoload
 (defun sly-indef-get-value (var-name)
   "Get the value of a captured variable and insert it.
 VAR-NAME is the name of the variable."
@@ -296,8 +276,6 @@ VAR-NAME is the name of the variable."
     (define-key map "q" #'quit-window)
     (define-key map "g" #'sly-indef-show)
     (define-key map "c" #'sly-indef-clear)
-    (define-key map "i" #'sly-indef-inspect-var)
-    (define-key map (kbd "RET") #'sly-indef-inspect-var-at-point)
     map)
   "Keymap for `sly-indef-mode'.")
 
@@ -307,13 +285,6 @@ VAR-NAME is the name of the variable."
 \\{sly-indef-mode-map}"
   (setq buffer-read-only t)
   (setq truncate-lines t))
-
-(defun sly-indef-inspect-var-at-point ()
-  "Inspect the variable at point in indef buffer."
-  (interactive)
-  (let ((line (thing-at-point 'line t)))
-    (when (string-match "^\\([^ =]+\\) = " line)
-      (sly-indef-inspect-var (match-string 1 line)))))
 
 ;;; Keybindings
 
@@ -325,7 +296,6 @@ VAR-NAME is the name of the variable."
     (define-key map "v" #'sly-indef-show)
     (define-key map "V" #'sly-indef-show-at-point)
     (define-key map "c" #'sly-indef-clear)
-    (define-key map "i" #'sly-indef-inspect-var)
     (define-key map "r" #'sly-indef-get-return)
     (define-key map ">" #'sly-indef-get-call)
     (define-key map "l" #'sly-indef-list)
