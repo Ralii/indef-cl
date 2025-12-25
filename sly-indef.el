@@ -114,7 +114,12 @@ This instruments the function to capture all bindings without
 modifying the source file."
   (interactive)
   (sly-indef--ensure-loaded)
-  (let* ((form-string (sly-defun-at-point))
+  (let* ((form-string (save-excursion
+                        (end-of-defun)
+                        (beginning-of-defun)
+                        (let ((start (point)))
+                          (forward-sexp)
+                          (buffer-substring-no-properties start (point)))))
          (name (save-excursion
                  (beginning-of-defun)
                  (down-list)
