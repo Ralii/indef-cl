@@ -35,10 +35,22 @@
 
 (defconst sly-indef--directory
   (file-name-directory (or load-file-name buffer-file-name))
-  "Directory where sly-indef is installed.")
+  "Directory where sly-indef.el is loaded from.")
 
 (defvar sly-indef--loaded-p nil
   "Whether indef.lisp has been loaded into the current Lisp connection.")
+
+(defun sly-indef--find-lisp-file ()
+  "Find indef.lisp, checking multiple possible locations."
+  (let ((candidates (list
+                     ;; Same directory as sly-indef.el
+                     (expand-file-name "indef.lisp" sly-indef--directory)
+                     ;; Straight.el repos directory (Doom Emacs)
+                     (expand-file-name "~/.config/emacs/.local/straight/repos/indef-cl/indef.lisp")
+                     (expand-file-name "~/.emacs.d/.local/straight/repos/indef-cl/indef.lisp")
+                     ;; Quelpa/package.el locations
+                     (expand-file-name "../indef-cl/indef.lisp" sly-indef--directory))))
+    (cl-find-if #'file-exists-p candidates)))
 
 ;;; Customization
 
@@ -74,21 +86,18 @@
 
 ;;; Core Functions
 
-(defun sly-indef--lisp-file ()
-  "Return the path to indef.lisp."
-  (expand-file-name "indef.lisp" sly-indef--directory))
-
 (defun sly-indef--ensure-loaded ()
   "Ensure the indef package is loaded in the Lisp image.
 Auto-loads indef.lisp from the package directory if needed."
   (unless (sly-eval '(cl:find-package :indef))
-    (let ((lisp-file (sly-indef--lisp-file)))
-      (if (file-exists-p lisp-file)
+    (let ((lisp-file (sly-indef--find-lisp-file)))
+      (if lisp-file
           (progn
             (sly-eval `(cl:load ,lisp-file))
             (setq sly-indef--loaded-p t)
             (message "Loaded indef from %s" lisp-file))
-        (error "Cannot find indef.lisp at %s" lisp-file)))))
+        (error "Cannot find indef.lisp. Searched in: %s, straight repos, etc."
+               sly-indef--directory)))))
 
 (defun sly-indef--transform-defun (form-string)
   "Transform a defun form string into an indef'd version."
