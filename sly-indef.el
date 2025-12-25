@@ -249,6 +249,15 @@ VAR-NAME is the name of the variable."
           (message "%s> = %s (copied to kill ring)" function-name call-str))))))
 
 ;;;###autoload
+(defun sly-indef-unindef-all ()
+  "Remove instrumentation from all indef'd functions."
+  (interactive)
+  (sly-indef--ensure-loaded)
+  (sly-eval-async '(indef:unindef-all)
+    (lambda (_result)
+      (message "All functions unindef'd"))))
+
+;;;###autoload
 (defun sly-indef-clear ()
   "Clear all captured indef state."
   (interactive)
@@ -293,6 +302,7 @@ VAR-NAME is the name of the variable."
     (define-key map "s" #'sly-indef-eval-defun)
     (define-key map "S" #'sly-indef-function)
     (define-key map "u" #'sly-indef-unindef)
+    (define-key map "U" #'sly-indef-unindef-all)
     (define-key map "v" #'sly-indef-show)
     (define-key map "V" #'sly-indef-show-at-point)
     (define-key map "c" #'sly-indef-clear)

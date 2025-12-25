@@ -26,6 +26,7 @@
    ;; Instrumentation API (for SLY integration)
    #:indef
    #:unindef
+   #:unindef-all
    #:indef-p
    #:list-indef
    #:indef-defun-form
@@ -493,6 +494,19 @@
           (format t "~&Unindef'd ~A~%" function-name))
         (format t "~&~A was not indef'd~%" function-name)))
   function-name)
+
+(defun unindef-all ()
+  "Remove instrumentation from all indef'd functions."
+  (let ((count 0))
+    (maphash (lambda (name original)
+               (when (functionp original)
+                 (setf (fdefinition name) original)
+                 (incf count)))
+             *original-functions*)
+    (clrhash *original-functions*)
+    (clrhash *indef-sources*)
+    (format t "~&Unindef'd ~D function~:P.~%" count))
+  (values))
 
 (defun indef-p (function-name)
   "Check if a function is currently indef'd."
