@@ -28,13 +28,34 @@ Or copy `indef.lisp` and load it directly:
 
 ### Emacs/SLY
 
-Add to your Emacs config:
+**With straight.el:**
+
+```elisp
+(use-package sly-indef
+  :straight (:host github :repo "ralii/indef-cl")
+  :hook (sly-mode . sly-indef-setup-keybindings))
+```
+
+**With Doom Emacs:**
+
+Add to `packages.el`:
+
+```elisp
+(package! sly-indef :recipe (:host github :repo "ralii/indef-cl"))
+```
+
+Add to `config.el`:
+
+```elisp
+(use-package! sly-indef
+  :hook (sly-mode . sly-indef-setup-keybindings))
+```
+
+**Manual installation:**
 
 ```elisp
 (add-to-list 'load-path "path/to/indef/")
 (require 'sly-indef)
-
-;; Set up keybindings (optional but recommended)
 (add-hook 'sly-mode-hook #'sly-indef-setup-keybindings)
 ```
 
@@ -184,16 +205,6 @@ All values are stored in hash tables keyed by symbol name (and optionally functi
 - Indef'ing functions without source available only captures numbered args (`ARG0`, `ARG1`, etc.)
 - May impact performance on hot paths - use for debugging only
 - Thread safety: Uses global state, so concurrent calls may overwrite bindings
-
-## Comparison to Clojure Indef
-
-| Feature | Clojure Indef | CL Indef |
-|---------|---------------|----------|
-| Inline defs | `def` in namespace | Hash table storage |
-| Return value | `foo<` | `(indef:@@ 'foo)` |
-| Call reconstruction | `foo>` | `(indef:@@> 'foo)` |
-| Dynamic instrumentation | Via nREPL middleware | `indef:indef` function |
-| Editor integration | Emacs, etc. | SLY |
 
 ## License
 
